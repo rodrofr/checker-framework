@@ -170,6 +170,19 @@ public class FormatterTreeUtil {
                 == Locale.class);
     }
 
+    /**
+     * Returns true if the given ExpressionTree has type java.lang.String.
+     *
+     * @param e ExpressionTree
+     * @param atypeFactory AnnotatedTypeFactory
+     * @return {@code true} if the provided ExpressionTree has type java.lang.String, {@code false}
+     *     otherwise.
+     */
+    public static boolean isString(ExpressionTree e, AnnotatedTypeFactory atypeFactory) {
+        return (typeMirrorToClass(atypeFactory.getAnnotatedType(e).getUnderlyingType())
+                == String.class);
+    }
+
     /** Represents a format method invocation in the syntax tree. */
     public class FormatCall {
         private final AnnotatedTypeMirror formatAnno;
@@ -186,8 +199,8 @@ public class FormatterTreeUtil {
             List<? extends ExpressionTree> theargs;
 
             theargs = node.getArguments();
-            if (isLocale(theargs.get(0), atypeFactory)) {
-                // call with Locale as first argument
+            // Strip off leading non-String arguments
+            while (!theargs.isEmpty() && !isString(theargs.get(0), atypeFactory)) {
                 theargs = theargs.subList(1, theargs.size());
             }
 
